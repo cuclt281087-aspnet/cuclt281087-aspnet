@@ -1,0 +1,103 @@
+@model ShoeStore.Models.Product
+@using Newtonsoft.Json
+
+@{
+    var images = JsonConvert.DeserializeObject<string[]>(Model.Images) ?? new string[0];
+    var sizes = JsonConvert.DeserializeObject<int[]>(Model.Sizes) ?? new int[0];
+    var colors = JsonConvert.DeserializeObject<string[]>(Model.Colors) ?? new string[0];
+    var discountPercentage = Model.SalePrice.HasValue ? Math.Round(((Model.Price - Model.SalePrice.Value) / Model.Price) * 100) : 0;
+}
+
+<div class="card h-100 border-0 shadow-sm product-card">
+    <div class="position-relative overflow-hidden">
+        <img src="@(images.Length > 0 ? images[0] : "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg")" 
+             class="card-img-top product-image" alt="@Model.Name" style="height: 250px; object-fit: cover;">
+        
+        @if (Model.SalePrice.HasValue)
+        {
+            <span class="position-absolute top-0 start-0 badge bg-danger m-2">
+                -@discountPercentage%
+            </span>
+        }
+        
+        @if (Model.IsFeatured)
+        {
+            <span class="position-absolute top-0 end-0 badge bg-warning text-dark m-2">
+                HOT
+            </span>
+        }
+
+        <div class="product-overlay position-absolute bottom-0 start-0 w-100 p-3 bg-dark bg-opacity-75 text-white translate-y-100">
+            <div class="d-flex gap-2">
+                <form method="post" action="@Url.Action("AddToCart", "Products")" class="flex-fill">
+                    <input type="hidden" name="productId" value="@Model.Id" />
+                    <input type="hidden" name="size" value="@(sizes.Length > 0 ? sizes[0] : 42)" />
+                    <input type="hidden" name="color" value="@(colors.Length > 0 ? colors[0] : "Đen")" />
+                    <input type="hidden" name="quantity" value="1" />
+                    <button type="submit" class="btn btn-light w-100">
+                        <i class="fas fa-shopping-cart me-1"></i>Thêm vào giỏ
+                    </button>
+                </form>
+                <button class="btn btn-outline-light">
+                    <i class="fas fa-heart"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <small class="text-muted fw-medium">@Model.Brand</small>
+        <h6 class="card-title fw-semibold mt-1 mb-2">
+            <a asp-controller="Products" asp-action="Details" asp-route-id="@Model.Id" 
+               class="text-decoration-none text-dark stretched-link">
+                @Model.Name
+            </a>
+        </h6>
+        
+        <div class="mb-2">
+            @if (Model.SalePrice.HasValue)
+            {
+                <span class="fw-bold text-danger fs-6">@Model.SalePrice.Value.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                <small class="text-muted text-decoration-line-through ms-1">@Model.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</small>
+            }
+            else
+            {
+                <span class="fw-bold text-dark fs-6">@Model.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+            }
+        </div>
+
+        <div class="mb-2">
+            <small class="text-muted">Sizes: </small>
+            @for (int i = 0; i < Math.Min(sizes.Length, 4); i++)
+            {
+                <span class="badge bg-light text-dark me-1">@sizes[i]</span>
+            }
+            @if (sizes.Length > 4)
+            {
+                <small class="text-muted">+@(sizes.Length - 4)</small>
+            }
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+            <small class="@(Model.Stock > 0 ? "text-success" : "text-danger") fw-medium">
+                @(Model.Stock > 0 ? $"Còn {Model.Stock} đôi" : "Hết hàng")
+            </small>
+        </div>
+    </div>
+</div>
+
+<style>
+.product-card:hover .product-image {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-overlay {
+    transform: translateY(0) !important;
+    transition: transform 0.3s ease;
+}
+
+.product-overlay {
+    transition: transform 0.3s ease;
+}
+</style>

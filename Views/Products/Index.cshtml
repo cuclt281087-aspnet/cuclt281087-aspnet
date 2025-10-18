@@ -1,0 +1,32 @@
+@model List<ShoeStore.Models.Product>
+@{
+    ViewData["Title"] = "Sản phẩm";
+}
+
+<div class="container py-4">
+    <h2 class="fw-bold mb-4">Tất cả sản phẩm</h2>
+    
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    
+    <div class="row g-4">
+        @foreach (var product in Model)
+        {
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <partial name="_ProductCard" model="product" />
+            </div>
+        }
+    </div>
+    
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <p class="text-muted">Chưa có sản phẩm nào</p>
+        </div>
+    }
+</div>

@@ -1,0 +1,227 @@
+@model IEnumerable<ShoeStore.Models.CartItem>
+@using Newtonsoft.Json
+@{
+    ViewData["Title"] = "Giỏ hàng";
+    var total = ViewBag.Total as decimal? ?? 0;
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                    <li class="breadcrumb-item active">Giỏ hàng</li>
+                </ol>
+            </nav>
+
+            <h2 class="fw-bold mb-4">Giỏ hàng của bạn</h2>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            
+            @if (Model.Any())
+            {
+                <div class="row g-4">
+                    <!-- Cart Items -->
+                    <div class="col-lg-8">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-0">
+                                @foreach (var item in Model)
+                                {
+                                    var images = JsonConvert.DeserializeObject<string[]>(item.Product.Images) ?? new string[0];
+                                    var itemPrice = item.Product.SalePrice ?? item.Product.Price;
+                                    
+                                    <div class="cart-item p-4 border-bottom" data-item-id="@item.Id">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-2">
+                                                <img src="@(images.Length > 0 ? images[0] : "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg")" 
+                                                     class="img-fluid rounded" alt="@item.Product.Name">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <h6 class="fw-semibold mb-1">@item.Product.Name</h6>
+                                                <p class="text-muted mb-1">@item.Product.Brand</p>
+                                                <small class="text-muted">Size: @item.Size | Màu: @item.Color</small>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="fw-semibold">
+                                                    @itemPrice.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))
+                                                </div>
+                                                @if (item.Product.SalePrice.HasValue)
+                                                {
+                                                    <small class="text-muted text-decoration-line-through">
+                                                        @item.Product.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))
+                                                    </small>
+                                                }
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="input-group input-group-sm">
+                                                    <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('@item.Id', @(item.Quantity - 1))">-</button>
+                                                    <input type="number" class="form-control text-center" value="@item.Quantity" min="1" readonly>
+                                                    <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('@item.Id', @(item.Quantity + 1))">+</button>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1">
+                                                <div class="fw-bold text-primary">
+                                                    @((itemPrice * item.Quantity).ToString("C0", new System.Globalization.CultureInfo("vi-VN")))
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1">
+                                                <button class="btn btn-outline-danger btn-sm" onclick="removeItem('@item.Id')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <a asp-controller="Products" asp-action="Index" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Tiếp tục mua sắm
+                            </a>
+                            <button class="btn btn-outline-danger" onclick="clearCart()">
+                                <i class="fas fa-trash me-2"></i>Xóa tất cả
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0 fw-bold">Tóm tắt đơn hàng</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Tạm tính:</span>
+                                    <span id="subtotal">@total.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Phí vận chuyển:</span>
+                                    <span class="text-success">Miễn phí</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <span class="fw-bold">Tổng cộng:</span>
+                                    <span class="fw-bold text-primary fs-5" id="total">@total.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                </div>
+
+                                <a href="@Url.Action("Index", "Checkout")" class="btn btn-primary btn-lg w-100 mb-3">
+                                    <i class="fas fa-credit-card me-2"></i>Thanh toán
+                                </a>
+
+                                <div class="text-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-shield-alt me-1"></i>
+                                        Thanh toán an toàn và bảo mật
+                                    </small>
+                                </div>
+                                
+                                @Html.AntiForgeryToken()
+                            </div>
+                        </div>
+
+                        <!-- Promo Code -->
+                        <div class="card border-0 shadow-sm mt-3">
+                            <div class="card-body">
+                                <h6 class="fw-semibold mb-3">Mã giảm giá</h6>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Nhập mã giảm giá">
+                                    <button class="btn btn-outline-primary" type="button">Áp dụng</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Empty Cart -->
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-shopping-cart fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="fw-bold text-muted mb-3">Giỏ hàng của bạn đang trống</h4>
+                    <p class="text-muted mb-4">Hãy thêm một số sản phẩm vào giỏ hàng để tiếp tục mua sắm</p>
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-primary btn-lg">
+                        <i class="fas fa-shopping-bag me-2"></i>Bắt đầu mua sắm
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updateQuantity(itemId, newQuantity) {
+            if (newQuantity < 1) {
+                removeItem(itemId);
+                return;
+            }
+
+            fetch('@Url.Action("UpdateQuantity", "Cart")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({
+                    cartItemId: itemId,
+                    quantity: newQuantity
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+        }
+
+        function removeItem(itemId) {
+            if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+                fetch('@Url.Action("RemoveItem", "Cart")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({
+                        cartItemId: itemId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+
+        function clearCart() {
+            if (confirm('Bạn có chắc chắn muốn xóa tất cả sản phẩm trong giỏ hàng?')) {
+                fetch('@Url.Action("ClearCart", "Cart")', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+    </script>
+}

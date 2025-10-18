@@ -1,0 +1,92 @@
+@model ShoeStore.Models.Order
+@{
+    ViewData["Title"] = "Thanh toán";
+    var cartItems = ViewBag.CartItems as IEnumerable<ShoeStore.Models.CartItem>;
+    var total = ViewBag.Total as decimal? ?? 0;
+}
+
+<div class="container py-4">
+    <h2 class="fw-bold mb-4">Thanh toán</h2>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Thông tin giao hàng</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="PlaceOrder">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Họ tên *</label>
+                                    <input type="text" name="CustomerName" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Email *</label>
+                                    <input type="email" name="CustomerEmail" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Số điện thoại *</label>
+                                    <input type="tel" name="CustomerPhone" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Phương thức thanh toán</label>
+                                    <select name="PaymentMethod" class="form-select">
+                                        <option value="COD">Thanh toán khi nhận hàng</option>
+                                        <option value="BankTransfer">Chuyển khoản ngân hàng</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ giao hàng *</label>
+                            <textarea name="ShippingAddress" class="form-control" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea name="Notes" class="form-control" rows="2"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-credit-card me-2"></i>Đặt hàng
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Đơn hàng của bạn</h5>
+                </div>
+                <div class="card-body">
+                    @foreach (var item in cartItems)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>@item.Product.Name x @item.Quantity</span>
+                            <span>@((item.Product.SalePrice ?? item.Product.Price * item.Quantity).ToString("C0"))</span>
+                        </div>
+                    }
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>Tổng cộng:</span>
+                        <span>@total.ToString("C0")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

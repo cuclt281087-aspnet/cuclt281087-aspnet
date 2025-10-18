@@ -1,0 +1,167 @@
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<!-- Hero Banner -->
+<section class="bg-gradient-to-r from-primary to-secondary text-white position-relative overflow-hidden">
+    <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-25"></div>
+    <div class="container position-relative py-5">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    Bộ Sưu Tập Giày
+                    <span class="d-block text-warning">Chính Hãng 2024</span>
+                </h1>
+                <p class="lead mb-4">
+                    Khám phá hàng ngàn mẫu giày từ các thương hiệu hàng đầu thế giới. 
+                    Giao hàng miễn phí và đổi trả trong 30 ngày.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-3">
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-light btn-lg px-4">
+                        <i class="fas fa-shopping-bag me-2"></i>Mua sắm ngay
+                    </a>
+                    <a asp-controller="Products" asp-action="Index" asp-route-sale="true" class="btn btn-outline-light btn-lg px-4">
+                        Khuyến mãi
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <img src="https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=800" 
+                     alt="Featured Shoes" class="img-fluid rounded shadow-lg">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-5">Danh Mục Sản Phẩm</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <img src="https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400" 
+                         class="card-img-top" alt="Giày Thể Thao" style="height: 250px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Giày Thể Thao</h5>
+                        <p class="card-text text-muted">Năng động, thoải mái cho mọi hoạt động</p>
+                        <a asp-controller="Products" asp-action="Index" asp-route-category="sports" class="btn btn-primary">
+                            Khám phá ngay <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <img src="https://images.pexels.com/photos/1456733/pexels-photo-1456733.jpeg?auto=compress&cs=tinysrgb&w=400" 
+                         class="card-img-top" alt="Giày Casual" style="height: 250px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Giày Casual</h5>
+                        <p class="card-text text-muted">Phong cách trẻ trung, hiện đại</p>
+                        <a asp-controller="Products" asp-action="Index" asp-route-category="casual" class="btn btn-primary">
+                            Khám phá ngay <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <img src="https://images.pexels.com/photos/298864/pexels-photo-298864.jpeg?auto=compress&cs=tinysrgb&w=400" 
+                         class="card-img-top" alt="Giày Công Sở" style="height: 250px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Giày Công Sở</h5>
+                        <p class="card-text text-muted">Lịch lãm, sang trọng cho công việc</p>
+                        <a asp-controller="Products" asp-action="Index" asp-route-category="formal" class="btn btn-primary">
+                            Khám phá ngay <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Sản Phẩm Nổi Bật</h2>
+            <a asp-controller="Products" asp-action="Index" asp-route-featured="true" class="btn btn-outline-primary">
+                Xem tất cả <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        
+        <div class="row g-4">
+            @if (ViewBag.FeaturedProducts != null)
+            {
+                @foreach (var product in (IEnumerable<ShoeStore.Models.Product>)ViewBag.FeaturedProducts)
+                {
+                    <div class="col-lg-3 col-md-4 col-sm-6">
+                        <partial name="_ProductCard" model="product" />
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Sale Products -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">
+                <span class="text-danger">Flash Sale</span> - Giảm Giá Đặc Biệt
+            </h2>
+            <a asp-controller="Products" asp-action="Index" asp-route-sale="true" class="btn btn-outline-danger">
+                Xem tất cả <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        
+        <div class="row g-4">
+            @if (ViewBag.SaleProducts != null)
+            {
+                @foreach (var product in (IEnumerable<ShoeStore.Models.Product>)ViewBag.SaleProducts)
+                {
+                    <div class="col-lg-3 col-md-4 col-sm-6">
+                        <partial name="_ProductCard" model="product" />
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="p-4">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-truck text-primary fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">Giao Hàng Miễn Phí</h5>
+                    <p class="text-muted">Miễn phí giao hàng cho đơn hàng từ 500.000đ</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-sync-alt text-primary fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">Đổi Trả Dễ Dàng</h5>
+                    <p class="text-muted">Đổi trả trong 30 ngày nếu không hài lòng</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-shield-alt text-primary fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">Bảo Hành Chính Hãng</h5>
+                    <p class="text-muted">Cam kết sản phẩm chính hãng 100%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
